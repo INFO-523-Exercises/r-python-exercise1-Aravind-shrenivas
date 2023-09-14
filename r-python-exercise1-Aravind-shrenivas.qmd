@@ -1,0 +1,344 @@
+---
+title: "Getting to know your Data with R"
+author: "Aravind shrenivas Murali"
+format: html
+editor: visual
+toc: true
+---
+
+## Installing required packages
+
+The `pacman` package is a vital tool in R which helps to manage and combine the functionality of base library functions to easy readable named functions.
+
+```{r}
+#checking and installing 'pacman'  package
+if(!require("pacman"))
+  install.packages("pacman") 
+```
+
+```{r}
+library(pacman) #importing the package `pacman` to the current working session
+
+p_load(dlookr,
+       DMwR2, # Data Mining with R functions
+       GGally, # Pair-wise plots using ggplot2
+       Hmisc, # Data analysis 
+       palmerpenguins, # Alternative to the Iris dataset
+       tidyverse) # Data wrangling, manipulation, visualization
+```
+
+#### dlookr
+
+`dlookr` is a collection of useful tools which will help in data exploration, data transformation and data diagnosis.
+
+Data diagnosis basically as the name suggests, it diagnose the data and gives us information on missing values, outliers and other parameters to help us understand distribution and quality of data.
+
+Data exploration gives us information about relationship between target variable and predictor, visualization of differences between two variables, correlation of two variables etc.,
+
+Data transformation is basically used to transform or modify data to make the data more suitable for further processes.
+
+#### DMwR2
+
+This package contains functions and data for 'Data mining with R' book.
+
+#### GGally
+
+This package is used to plot data and it has multiple data plotting graphs.
+
+#### Hmisc
+
+The hmisc package contains many functions for data analysis such as imputing missing values, advanced table making, variable clustering, character string manipulation etc.
+
+#### palmerpenguins
+
+It is a data set of a variety of penguins from Antarctica which include their size , type of penguins observed etc.,
+
+#### tidyverse
+
+Tidyverse is a specialized package made for data science. It is used for performing many tasks. Some of them are data wrangling, manipulation, visualization.
+
+## Loading data
+
+Here we are going to load a dataset about algae from `DMwR2` package.
+
+```{r}
+data(algae, package = "DMwR2")
+
+#using `glimpse()` function to look into the dataset
+algae |> glimpse()
+```
+
+## Central tendency: mean, median, mode
+
+The code `|>` is called as pipe operator. It passes the data from the left side to the right side function.
+
+### Mean
+
+The mean is otherwise called as the average. It is calculated by the sum of all the entries in the data set divided by the total count.
+
+```{r}
+algae$a1 |> # selecting the 'a1' column from the 'algae' dataset.
+
+  mean() #taking the mean
+```
+
+### Median
+
+The median is the middle value of the data set when it is arranged in ascending or descending order.
+
+```{r}
+algae$a1 |> # selecting the 'a1' column from the 'algae' dataset.
+  
+  median() #find the median 
+```
+
+### Mode
+
+The mode is the value which most recurs in a data set.
+
+```{r}
+#define a mode function as there is no inbuilt function
+#the parameters are x and na.rm
+Mode <- function(x, na.rm=FALSE){
+  # If 'na.rm' is TRUE, remove NA (missing) values from 'x'
+  if(na.rm) x<-x[!is.na(x)]
+  # Find unique values in 'x' and store them in 'ux'
+  ux <- unique (x)
+  # Calculate the mode and return it
+  # 'which.max' finds the index of the first maximum value in the table
+  # 'tabulate' counts the occurrences of each unique value in 'x'
+  return (ux[which.max(tabulate(match(x, ux)))])
+}
+
+# selecting the 'a1' column from the 'algae' dataset and finding the mode
+algae$a2 |> Mode()
+```
+
+## `DMwR centralValue()` function:
+
+It returns the median value for the numerical variable and mode for the nominal variable.
+
+```{r}
+# Numerical variable
+# selecting the 'a1' column from the 'algae' dataset and passing the data to centralValue()
+algae$a1 |> centralValue()
+```
+
+```{r}
+# Nominal variable
+# selecting the 'speed' column from the 'algae' dataset and passing the data to centralValue()
+algae$speed |> centralValue()
+```
+
+## Statistics of spread (variation)
+
+### Variance
+
+Variance is used to understand how spread or scattered the data is. It tells us how much the data points deviate from the average.
+
+```{r}
+# selecting the 'a1' column from the 'algae' dataset and passing the data to var() to find variance
+algae$a1 |> var()
+```
+
+### Standard deviation
+
+Variance and standard deviation are both similar. They both describe the deviation from the mean. The standard deviation is the square root of variance.
+
+```{r}
+# selecting the 'a1' column from the 'algae' dataset and passing the data to sd() to find standard deviation
+algae$a1 |> sd()
+```
+
+### Range
+
+It is the difference between largest and smallest value in a dataset.
+
+```{r}
+# selecting the 'a1' column from the 'algae' dataset and passing the data to range() to find range
+algae$a1 |> range()
+```
+
+### Maximum value
+
+As the name suggest this function finds the maximum value in the dataset.
+
+```{r}
+# selecting the 'a1' column from the 'algae' dataset and passing the data to max() to find max value
+algae$a1 |> max()
+```
+
+### Minimum Value
+
+This function finds the minimum value in the data set.
+
+```{r}
+# selecting the 'a1' column from the 'algae' dataset and passing the data to min() to find min value
+algae$a1 |> min()
+```
+
+### Interquartile Range
+
+It is the difference between 3rd quartile and first quartile in a dataset.
+
+```{r}
+# selecting the 'a1' column from the 'algae' dataset and passing the data to IQR() to find interquartile range
+algae$a1 |> IQR()
+```
+
+### Quantiles
+
+A quantile is something which will divide the dataset into equally sized, non overlapping sub groups.
+
+The function `quantile()` by default calculates the 25%, 50%, 75% of the given data set, where as if `probs` arguement is set it splits the dataset to the specified configurations.
+
+```{r}
+# selecting the 'a1' column from the 'algae' dataset and passing the data to quantile()
+algae$a1 |> quantile()
+```
+
+```{r}
+# selecting the 'a1' column from the 'algae' dataset and passing the data to quantile()
+#here, the quantile divides the dataset to 20% and 80% of the column 'a1'
+algae$a1 |> quantile(probs = c(0.2, 0.8))
+```
+
+## Missing values
+
+```{r}
+#load the `purrr` library to the current session
+library(purrr)
+
+# Compute the total number of NA values in the dataset
+
+#using the `map_dbl` function from `purrr` package
+nas <- algae %>% 
+  purrr::map_dbl(~sum(is.na(.))) %>% #for each column, count the number of missing values and return 
+  sum() #sum up the counts of missing values from all columns
+
+cat("The dataset contains ", nas, "NA values. \n")
+```
+
+```{r}
+# Compute the number of incomplete rows in the dataset
+#create a variable inclomplete_rows
+incomplete_rows <- algae %>% 
+  # `complete.cases(.)` returns `TRUE` if all elements in a row are non-missing and `FALSE` if there are any missing values
+  summarise_all(~!complete.cases(.)) %>%
+  nrow()
+```
+
+```{r}
+cat("The dataset contains ", incomplete_rows, "(out of ", nrow(algae),") incomplete rows. \n")
+```
+
+## Summaries of a dataset
+
+### Base R's `summary()`
+
+`summary()` calculates the mean, median, quartiles and missing values.
+
+```{r}
+#calculate the summary of the dataset
+algae |> summary()
+```
+
+### `Hmisc` 's `describe()`
+
+```{r}
+#load the `penguins` data
+data("penguins")
+
+#generate a summary for penguin dataset using `Hmisc` functions
+penguins |> Hmisc::describe()
+```
+
+### `dlookr` 's `describe()`
+
+```{r}
+#generate a summary for penguin dataset using `dlookr` functions
+penguins |> dlookr::describe()
+```
+
+## Summaries on a subset of data
+
+```{r}
+algae |>
+  # Calculate the mean of the 'NO3' column while excluding missing values
+  summarise(avgNO3 = mean(NO3, na.rm=TRUE),
+            #calculate the median of `a1` column
+            medA1 = median(a1))
+```
+
+```{r}
+#select algae dataset
+algae |>
+  # Select columns from 'mxPH' to 'Cl'
+  select(mxPH:Cl) |>
+  #calculate mean and median
+  summarise_all(list(mean, median), na.rm = TRUE)
+```
+
+```{r}
+#select algae dataset
+algae |>
+  #select rows from `a1` to `a7`
+  select(a1:a7) |>
+  #calculated variance
+  summarise_all(funs(var))
+```
+
+```{r}
+#select algae dataset
+algae |>
+  #select columns from `a1` to `a7`
+  select(a1:a7) |>
+  #calculate min values and max values
+  summarise_all(c("min", "max"))
+```
+
+### Use `summarise()` by `group_by()`
+
+```{r}
+#select algae dataset
+algae |>
+  #group the 'algae' dataset by the 'season' and 'size' columns using `group_by()`
+  group_by(season, size) |>
+  #calculate the count and median of `a7`
+  summarise(nObs = n(), mA7 = median(a7))
+```
+
+```{r}
+#select penguins dataset
+penguins |> 
+  #group the `penguins` dataset by the `species` and columns using `group_by()`
+  group_by(species) |>
+  #calculate the variance and exclude missing values
+  summarise(var = var(bill_length_mm, na.rm = TRUE))
+```
+
+### Aggregating data
+
+```{r}
+#select penguins dataset
+penguins |>
+  #group the `penguins` dataset by the `species` and columns using `group_by()`
+  group_by(species) |>
+  #calculate the quantile of the 'bill_length_mm' column and create a new column 'var' to store the results. Exclude missing values.
+  reframe(var = quantile(bill_length_mm, na.rm = TRUE))
+```
+
+`reframe()` expects a scalar result returned by the function, but quantile returns a vector.
+
+```{r}
+#select penguins dataset
+penguins |>
+   #group the `penguins` dataset by the `species` and columns using `group_by()`
+  group_by(species) |>
+  #using `dlookr` package to get the summary of `bill_length_mm` column
+  dlookr::describe(bill_length_mm)
+```
+
+## References
+
+1.  https://cran.r-project.org/
